@@ -35,7 +35,45 @@ The entire solution runs **100% locally** on `localhost` without cloud dependenc
 
 ---
 
-## 2. Technology Stack
+## 2. Project Directory Structure
+
+```text
+real-estate-management-system/
+├── client/                     # Modern React + Vite Dashboard Web App
+│   ├── public/                 # Static assets & SVG icons
+│   ├── src/                    # React components, pages, styles & API service
+│   ├── index.html              # HTML entry point with Google Fonts (Inter)
+│   ├── package.json            # Frontend dependencies (lucide-react, react, etc.)
+│   └── vite.config.js          # Vite config with /api reverse proxy to backend
+├── database/
+│   └── oracle/                 # Dedicated Oracle Database 21c PL/SQL Engine
+│       ├── 01_create_tables.sql            # 14 Relational tables & identity columns
+│       ├── 02_constraints_and_indexes.sql  # Foreign keys, checks, and performance indexes
+│       ├── 03_sequences.sql                # Explicit Oracle sequences
+│       ├── 04_functions.sql                # Commission, status, total paid, dues
+│       ├── 05_procedures.sql               # Core business procedures (registration, sales)
+│       ├── 06_triggers.sql                 # Row-level event and audit triggers
+│       ├── 07_packages.sql                 # REALESTATE_PKG spec and body with cursors
+│       ├── 08_sample_data.sql              # Realistic seed data and sequence realignment
+│       ├── 09_test_scripts.sql             # 8-suite automated PL/SQL test runner
+│       ├── 10_setup_instructions.sql       # Detailed DBA setup and troubleshooting
+│       ├── create_user.sql                 # DBA script to create REALESTATE_USER
+│       └── run_all.sql                     # Master runner executing all SQL files in order
+├── server/                     # Node.js + Express REST API Backend
+│   ├── src/
+│   │   ├── config/db.js        # Oracle Connection Pool (official oracledb driver)
+│   │   ├── controllers/        # Business controllers invoking PL/SQL routines
+│   │   ├── routes/api.js       # REST API endpoints
+│   │   └── server.js           # Express app listener (Port 5000)
+│   ├── .env.example            # Environment variables template
+│   └── package.json            # Backend dependencies (express, oracledb, cors, dotenv)
+├── .gitignore                  # Git ignore rules for node_modules, build & secrets
+└── README.md                   # Comprehensive ADBMS Project Documentation
+```
+
+---
+
+## 3. Technology Stack
 
 | Layer | Technologies & Tools |
 | :--- | :--- |
@@ -47,7 +85,7 @@ The entire solution runs **100% locally** on `localhost` without cloud dependenc
 
 ---
 
-## 3. Entity-Relationship (ER) Model
+## 4. Entity-Relationship (ER) Model
 
 The database models all core real estate operations across 14 tables:
 
@@ -65,27 +103,6 @@ The database models all core real estate operations across 14 tables:
 12. **`AUTOMATED_COMMUNICATIONS`**: Outbound SMS and email reminders.
 13. **`REPORTS`**: Generated management analytics records.
 14. **`USERS`**: Administrative system accounts.
-
----
-
-## 4. Dedicated Oracle Database Scripts (`database/oracle/`)
-
-All database scripts are located in `database/oracle/` and designed to be executed sequentially or via the master runner:
-
-| Script | Purpose |
-| :--- | :--- |
-| **`create_user.sql`** | DBA script: creates `REALESTATE_USER` with quota on `USERS` tablespace and grants privileges. |
-| **`01_create_tables.sql`** | 14 relational tables using Oracle data types (`VARCHAR2`, `NUMBER`, `DATE`) and identity columns. |
-| **`02_constraints_and_indexes.sql`** | Foreign keys with `ON DELETE CASCADE/SET NULL`, check constraints, and performance indexes. |
-| **`03_sequences.sql`** | Explicit Oracle sequences (`seq_general_audit`, `seq_report_id`, `seq_custom_transaction`). |
-| **`04_functions.sql`** | Genuine PL/SQL functions (`CALCULATE_AGENT_COMMISSION`, `GET_PROPERTY_STATUS`, `CALCULATE_RENTAL_DUES`). |
-| **`05_procedures.sql`** | Stored procedures (`REGISTER_PROPERTY`, `CREATE_LEASE`, `RECORD_PAYMENT`, `COMPLETE_PROPERTY_SALE`). |
-| **`06_triggers.sql`** | Row-level triggers (`TRG_PROPERTY_VALIDATE_FORMAT`, `TRG_LEASE_DATES_VALIDATE`, `TRG_PAYMENT_AUDIT`, `TRG_PROPERTY_STATUS_AUDIT`). |
-| **`07_packages.sql`** | `REALESTATE_PKG` package specification and body with explicit cursors (`OPEN/FETCH/CLOSE`) and cursor FOR loops. |
-| **`08_sample_data.sql`** | Realistic seed data with automatic identity sequence synchronization (`START WITH LIMIT VALUE`). |
-| **`09_test_scripts.sql`** | Comprehensive 8-suite automated PL/SQL test runner validating procedures, functions, exceptions, and triggers. |
-| **`run_all.sql`** | Master SQL*Plus script executing files 01 through 09 in order, recompiling schema, and displaying validation status. |
-| **`10_setup_instructions.sql`** | Full setup manual, prerequisites, and troubleshooting guide. |
 
 ---
 
@@ -124,6 +141,7 @@ All database scripts are located in `database/oracle/` and designed to be execut
 5. **Maintenance Ticketing**: Track open, in-progress, and resolved repair requests with priority badges (`Urgent`, `High`, `Normal`, `Low`).
 6. **Sales & Deeds**: View historical sales transactions, purchase prices, client names, and broker commissions.
 7. **ADBMS Reports**: 4 complex relational reporting queries (Active Leases by City, Outstanding Dues Reconciliation, Maintenance Aging, and Portfolio Valuation).
+
 ---
 
 ## 7. Local Setup & Startup Instructions
