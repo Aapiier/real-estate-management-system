@@ -1,128 +1,214 @@
-# Real Estate Management System
+# Real Estate Management System (ADBMS) — Oracle PL/SQL Migration & Web Application
 
-This project is an advanced database system designed to manage various aspects of a real estate business. It includes features for client relationship management, property listing, transaction tracking, market data analytics, geographic information integration, automated workflows, custom reporting, and security monitoring.
+An enterprise-grade **Real Estate Management System** developed for the Advanced Database Management Systems (ADBMS) curriculum. This project demonstrates a complete migration from legacy MySQL scripts to **Oracle Database 21c Express Edition**, featuring genuine **Oracle PL/SQL business logic** (stored procedures, functions, packages, row-level event triggers, explicit cursors, and custom exception handling) integrated with a modern, high-performance local web application.
 
-## Table of Contents
+---
 
-- [Features](#features)
-- [Getting Started](#getting-started)
-  - [Clone the Repository](#clone-the-repository)
-  - [Dependencies](#dependencies)
-- [Folder Structure](#folder-structure)
-- [Usage](#usage)
-  - [Data Population](#data-population)
-  - [Advanced SQL](#advanced-sql)
-  - [CRUD Operations](#crud-operations)
-  - [Reporting](#reporting)
-- [License](#license)
+## 1. System Architecture
 
-## Features
-
-- **Client Relationship Management (CRM):** Manage client interactions and preferences.
-- **Property Listing Database:** Store detailed information about properties, including images and pricing.
-- **Transaction Database:** Track the details and progress of transactions.
-- **Market Data Analytics:** Provide insights into market trends and pricing analytics.
-- **Geographic Information System (GIS):** Integrate with mapping software for geographic data.
-- **Automated Workflows:** Automate routine tasks like data entry and reporting.
-- **Custom Reports and Dashboards:** Generate custom reports and dashboards.
-- **Security and Compliance:** Ensure data security and compliance with relevant regulations.
-
-## Getting Started
-
-### Clone the Repository
-
-To get started, clone the repository from GitHub:
-
-```sh
-git clone https://github.com/yourusername/real-estate-management-system.git
-cd real-estate-management-system
-```
-
-### Dependencies
-
-Ensure you have the following dependencies installed:
-
-- **MySQL**: Database management system.
-- **Git**: Version control system to clone the repository.
-- **Text Editor/IDE**: For editing SQL scripts and viewing reports (e.g., VS Code, Sublime Text).
-
-## Folder Structure
-
-The project directory is structured as follows:
+The entire solution runs **100% locally** on `localhost` without cloud dependencies, paid services, or external APIs:
 
 ```
-real-estate-management-system/
-├── Advanced_SQL/
-│   ├── aggregations.sql
-│   ├── joins.sql
-│   ├── subqueries.sql
-│   ├── client_interactions.sql
-│   ├── transactions.sql
-│   ├── automated_communications.sql
-│   ├── reporting_analytics.sql
-├── CRUD_Operations/
-│   ├── create.sql
-│   ├── delete.sql
-│   ├── read.sql
-│   ├── update.sql
-├── Data/
-│   └── data.sql
-├── Reports/
-│   ├── Final report(3).pdf
-│   └── Reports.sql
-├── Security/
-│   └── security_audit.sql
-├── SQL_Schemas/
-│   ├── realestate_agent.sql
-│   ├── realestate_lease.sql
-│   ├── realestate_maintenance_request.sql
-│   ├── realestate_owner.sql
-│   ├── realestate_payment.sql
-│   ├── realestate_property.sql
-│   ├── realestate_tenant.sql
-├── README.md
+┌─────────────────────────────────────────────────────────────┐
+│                    REACT VITE CLIENT                        │
+│          Modern Vanilla CSS Dashboard UI (Port 5173)        │
+│    (Dashboard, Properties, Leases, Payments, Viva Console)  │
+└──────────────────────────────▲──────────────────────────────┘
+                               │ HTTP / JSON (Vite Reverse Proxy)
+┌──────────────────────────────▼──────────────────────────────┐
+│                    NODE.JS / EXPRESS API                    │
+│            REST Services & Pool Manager (Port 5000)         │
+│          Driver: official 'oracledb' (Thin Driver Mode)     │
+└──────────────────────────────▲──────────────────────────────┘
+                               │ Oracle Net Protocol (Port 1521)
+┌──────────────────────────────▼──────────────────────────────┐
+│              ORACLE DATABASE 21c (XE Container)             │
+│            Pluggable Database: XEPDB1 (Port 1521)           │
+│                 Schema: REALESTATE_USER                     │
+│  - 14 Relational Tables (Identity, Constraints, Indexes)    │
+│  - Stored Procedures (REGISTER_PROP, CREATE_LEASE, etc.)    │
+│  - Functions (COMMISSION, RENTAL_DUES, STATUS)              │
+│  - Triggers (PAYMENT_AUDIT, STATUS_AUDIT, VALIDATION)       │
+│  - Packages (REALESTATE_PKG with Explicit & FOR Cursors)    │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Usage
+---
 
-### Data Population
+## 2. Technology Stack
 
-1. Open `Data/data.sql` to populate the database with initial data for agents, maintenance requests, leases, owners, properties, tenants, payments, client interactions, transactions, automated communications, and security audit logs.
-2. Run the SQL script in your MySQL environment:
+| Layer | Technologies & Tools |
+| :--- | :--- |
+| **Database** | Oracle Database 21c Express Edition (`XEPDB1`), Oracle SQL*Plus |
+| **Database Engine** | Oracle PL/SQL (Procedures, Functions, Triggers, Packages, Explicit Cursors) |
+| **Backend API** | Node.js, Express.js, `oracledb` (Official Oracle Thin Driver), `cors`, `dotenv` |
+| **Frontend UI** | React 18, Vite, Vanilla CSS Design System, `lucide-react` |
+| **Networking** | 100% Localhost (`localhost:5173` frontend, `localhost:5000` backend, `localhost:1521` database) |
 
-```sql
-source /path/to/data.sql;
+---
+
+## 3. Entity-Relationship (ER) Model
+
+The database models all core real estate operations across 14 tables:
+
+1. **`OWNER`**: Property owners with contact details.
+2. **`AGENT`**: Licensed real estate agents with agency affiliations.
+3. **`PROPERTY`**: Physical properties with city, county, size, price, and status (`Available`, `Rented`, `Sold`, `Under Maintenance`).
+4. **`TENANT`**: Registered tenants and leasing contacts.
+5. **`LEASE`**: Rental contracts linking properties and tenants with monthly rent and validity dates.
+6. **`PAYMENT`**: Financial records tracking rental receipts against active leases.
+7. **`MAINTENANCE_REQUEST`**: Issue tickets filed by tenants for property repairs with status (`Open`, `In Progress`, `Completed`).
+8. **`CLIENTS`**: Prospective buyers and investors.
+9. **`TRANSACTIONS`**: Closed purchase agreements linking properties, clients, and agents.
+10. **`SECURITY_AUDIT`**: Automated audit trail populated by row-level database triggers.
+11. **`CLIENT_INTERACTIONS`**: Logs of phone calls, meetings, and property viewings.
+12. **`AUTOMATED_COMMUNICATIONS`**: Outbound SMS and email reminders.
+13. **`REPORTS`**: Generated management analytics records.
+14. **`USERS`**: Administrative system accounts.
+
+---
+
+## 4. Dedicated Oracle Database Scripts (`database/oracle/`)
+
+All database scripts are located in `database/oracle/` and designed to be executed sequentially or via the master runner:
+
+| Script | Purpose |
+| :--- | :--- |
+| **`create_user.sql`** | DBA script: creates `REALESTATE_USER` with quota on `USERS` tablespace and grants privileges. |
+| **`01_create_tables.sql`** | 14 relational tables using Oracle data types (`VARCHAR2`, `NUMBER`, `DATE`) and identity columns. |
+| **`02_constraints_and_indexes.sql`** | Foreign keys with `ON DELETE CASCADE/SET NULL`, check constraints, and performance indexes. |
+| **`03_sequences.sql`** | Explicit Oracle sequences (`seq_general_audit`, `seq_report_id`, `seq_custom_transaction`). |
+| **`04_functions.sql`** | Genuine PL/SQL functions (`CALCULATE_AGENT_COMMISSION`, `GET_PROPERTY_STATUS`, `CALCULATE_RENTAL_DUES`). |
+| **`05_procedures.sql`** | Stored procedures (`REGISTER_PROPERTY`, `CREATE_LEASE`, `RECORD_PAYMENT`, `COMPLETE_PROPERTY_SALE`). |
+| **`06_triggers.sql`** | Row-level triggers (`TRG_PROPERTY_VALIDATE_FORMAT`, `TRG_LEASE_DATES_VALIDATE`, `TRG_PAYMENT_AUDIT`, `TRG_PROPERTY_STATUS_AUDIT`). |
+| **`07_packages.sql`** | `REALESTATE_PKG` package specification and body with explicit cursors (`OPEN/FETCH/CLOSE`) and cursor FOR loops. |
+| **`08_sample_data.sql`** | Realistic seed data with automatic identity sequence synchronization (`START WITH LIMIT VALUE`). |
+| **`09_test_scripts.sql`** | Comprehensive 8-suite automated PL/SQL test runner validating procedures, functions, exceptions, and triggers. |
+| **`run_all.sql`** | Master SQL*Plus script executing files 01 through 09 in order, recompiling schema, and displaying validation status. |
+| **`10_setup_instructions.sql`** | Full setup manual, prerequisites, and troubleshooting guide. |
+
+---
+
+## 5. Oracle PL/SQL Implementation Details
+
+### A. Stored Procedures
+- **`REGISTER_PROPERTY`**: Validates foreign keys (`owner_id`, `agent_id`), ensures positive pricing, inserts the property, and returns the generated `property_id` via an `OUT` parameter.
+- **`CREATE_LEASE`**: Verifies property availability, ensures lease start is strictly before lease end, detects overlapping active leases using date-range intersections, creates the lease, updates property status to `Rented`, and records an audit log.
+- **`RECORD_PAYMENT`**: Validates lease existence and active status, rejects zero or negative amounts, guards against duplicate receipts within the same calendar day, records the payment, and triggers security auditing.
+- **`COMPLETE_PROPERTY_SALE`**: Acquires an exclusive row lock (`SELECT ... FOR UPDATE`), verifies the property is currently `Available`, records the transaction in `TRANSACTIONS`, updates property status to `Sold`, calculates commission, and records an audit log. **Rejects double sales with application error `-20031`**.
+
+### B. Stored Functions
+- **`CALCULATE_AGENT_COMMISSION(p_sale_amount, p_rate)`**: Validates sale amount and rate; returns broker commission formatted to 2 decimals.
+- **`GET_PROPERTY_STATUS(p_property_id)`**: Queries status by ID; gracefully handles `NO_DATA_FOUND` by returning `'NOT_FOUND'`.
+- **`GET_LEASE_TOTAL_PAID(p_lease_id)`**: Sums verified payment receipts for a lease.
+- **`CALCULATE_RENTAL_DUES(p_lease_id)`**: Calculates elapsed rental periods from lease start to date, calculates total expected rent, subtracts payments made, and returns outstanding arrears.
+
+### C. Database Triggers
+- **`TRG_PROPERTY_VALIDATE_FORMAT`**: `BEFORE INSERT OR UPDATE ON property` — validates uppercase status and uppercase county names.
+- **`TRG_LEASE_DATES_VALIDATE`**: `BEFORE INSERT OR UPDATE ON lease` — strictly enforces `lease_end > lease_start`.
+- **`TRG_PAYMENT_AUDIT`**: `AFTER INSERT OR UPDATE OR DELETE ON payment` — logs receipt numbers, amounts, and actions into `SECURITY_AUDIT` with `USER` and `SYSTIMESTAMP`.
+- **`TRG_PROPERTY_STATUS_AUDIT`**: `AFTER UPDATE OF status ON property` — captures status transitions (e.g., `Available -> Sold`) and records the prior and new status in `SECURITY_AUDIT`.
+
+### D. PL/SQL Package (`REALESTATE_PKG`)
+- **`generate_portfolio_report(p_city)`**: Uses an **explicit cursor** (`c_prop`) with `OPEN`, `FETCH`, `%NOTFOUND` check, `%ROWCOUNT` tracking, and `CLOSE`. Formats a clean tabular portfolio report written directly to `DBMS_OUTPUT`.
+- **`reconcile_all_dues`**: Uses a **cursor FOR loop** (`FOR r_lease IN c_active_leases LOOP`) to iterate over active leases, calculate outstanding balances via `CALCULATE_RENTAL_DUES`, and emit critical arrears alerts via `DBMS_OUTPUT`.
+
+---
+
+## 6. Web Application Modules
+
+1. **Executive Dashboard**: Live KPIs (Total Properties, Available, Rented, Sold, Portfolio Value, Total Revenue, Active Leases, Open Maintenance Tickets), recent payment feed, and inventory distribution tables.
+2. **Properties Management**: Filter by status, type, and city; search by address; register new properties via `REGISTER_PROPERTY`; complete property sales via `COMPLETE_PROPERTY_SALE`.
+3. **Lease Agreements**: Active lease viewer, date range tracking, monthly rent, and new lease creation via `CREATE_LEASE` with conflict detection.
+4. **Payment Processing**: Record rental payments via `RECORD_PAYMENT`, view receipt history, and display outstanding arrears.
+5. **Maintenance Ticketing**: Track open, in-progress, and resolved repair requests with priority badges (`Urgent`, `High`, `Normal`, `Low`).
+6. **Sales & Deeds**: View historical sales transactions, purchase prices, client names, and broker commissions.
+7. **ADBMS Reports**: 4 complex relational reporting queries (Active Leases by City, Outstanding Dues Reconciliation, Maintenance Aging, and Portfolio Valuation).
+8. **Faculty Viva Console**:
+   - Live query of `USER_OBJECTS` and `USER_TRIGGERS` displaying object compilation status (`VALID`).
+   - Interactive function test forms (`CALCULATE_AGENT_COMMISSION`, `GET_PROPERTY_STATUS`, `CALCULATE_RENTAL_DUES`).
+   - Real-time `DBMS_OUTPUT` console capturing output from `REALESTATE_PKG.generate_portfolio_report` and `reconcile_all_dues`.
+   - Live security audit viewer displaying trigger-generated records.
+   - Built-in ADBMS viva cheat sheet with architecture defense talking points.
+
+---
+
+## 7. Local Setup & Startup Instructions
+
+### Prerequisites
+- **Oracle Database 21c Express Edition (XE)** installed locally on port 1521.
+- **Node.js** (v18 or higher).
+- **npm** (bundled with Node.js).
+
+### Step 1: Initialize Oracle Database Schema
+Open a terminal in `database/oracle/` and run `sqlplus`:
+
+```bash
+# 1. Connect as SYSDBA and create the dedicated project user
+sqlplus sys/YourSysPassword@localhost:1521/XEPDB1 as sysdba
+@create_user.sql
+exit
+
+# 2. Run the master setup and automated test suite as REALESTATE_USER
+sqlplus REALESTATE_USER/"RealEstate2024#"@localhost:1521/XEPDB1
+@run_all.sql
+exit
 ```
 
-### Advanced SQL
+> **Verification:** `run_all.sql` automatically verifies that all 14 PL/SQL objects report `VALID` and all 8 test suites pass successfully.
 
-Run advanced SQL queries located in `Advanced_SQL/` for various complex data interactions and reporting:
+### Step 2: Configure and Start the Backend Server
+```bash
+cd server
+npm install
+npm start
+```
+The server will start at `http://localhost:5000` and display:
+```
+[Oracle DB] Connection pool created for user: REALESTATE_USER @ localhost:1521/XEPDB1
+[Oracle DB] Connected successfully to container: XEPDB1 as REALESTATE_USER
+Server running at: http://localhost:5000
+API Health Check:   http://localhost:5000/api/health
+```
 
-- **`aggregations.sql`**: Aggregation queries.
-- **`joins.sql`**: Join queries.
-- **`subqueries.sql`**: Subqueries.
-- **`client_interactions.sql`**: Manage client interactions.
-- **`transactions.sql`**: Track transactions.
-- **`automated_communications.sql`**: Automate communications.
-- **`reporting_analytics.sql`**: Reporting and analytics schema.
+### Step 3: Start the Frontend Application
+In a second terminal:
+```bash
+cd client
+npm install
+npm run dev
+```
+The client will start at `http://localhost:5173/`. Open this URL in any modern web browser.
 
-### CRUD Operations
+---
 
-Perform CRUD operations using SQL scripts located in `CRUD_Operations/`:
+## 8. Faculty Viva Examination Guide
 
-- **`create.sql`**: Insert new data.
-- **`delete.sql`**: Delete existing data.
-- **`read.sql`**: Read data from tables.
-- **`update.sql`**: Update existing data.
+| Viva Question | Technical Explanation |
+| :--- | :--- |
+| **Why Oracle PL/SQL over standard client queries?** | Procedural logic, cursors, and constraints execute directly within the Oracle kernel, reducing network round-trips and enforcing ACID compliance at the database tier. |
+| **How are overlapping leases prevented?** | Inside `CREATE_LEASE`, an explicit condition checks `(lease_start <= p_lease_end AND lease_end >= p_lease_start)` for existing active leases. If true, it raises application error `-20012`. |
+| **How is double-selling prevented?** | `COMPLETE_PROPERTY_SALE` issues `SELECT status FROM property WHERE property_id = :id FOR UPDATE`. If status is not `Available`, it raises `-20031` and rolls back to a savepoint. |
+| **Where are explicit cursors used?** | `REALESTATE_PKG.generate_portfolio_report` declares `CURSOR c_prop`, opens it with `OPEN`, iterates using `FETCH ... INTO`, checks `%NOTFOUND`, and closes it with `CLOSE`. |
+| **Where are cursor FOR loops used?** | `REALESTATE_PKG.reconcile_all_dues` uses `FOR r IN c_active_leases LOOP`, which manages cursor lifecycle automatically. |
+| **How were mutating table errors avoided?** | Row-level triggers (`TRG_PAYMENT_AUDIT`, `TRG_PROPERTY_STATUS_AUDIT`) only inspect `:NEW` and `:OLD` values and insert into the independent `SECURITY_AUDIT` table, without querying the mutating table. |
 
-### Reporting
+---
 
-Generate reports using the queries in `Reports/Reports.sql` and view the final report in `Reports/Final report(3).pdf`.
+## 9. Verification & Test Results
 
-### Security
+The following test suites were executed and verified against a live Oracle 21c Database:
+- [x] Schema DDL: 14 tables, constraints, foreign keys, and indexes compiled cleanly.
+- [x] PL/SQL Functions: `CALCULATE_AGENT_COMMISSION`, `GET_PROPERTY_STATUS`, `CALCULATE_RENTAL_DUES` tested and returned accurate values.
+- [x] Stored Procedures: `REGISTER_PROPERTY`, `CREATE_LEASE`, `RECORD_PAYMENT`, `COMPLETE_PROPERTY_SALE` verified end-to-end.
+- [x] Transaction Integrity: Double-sale attempts correctly rejected with custom ORA error `-20031`.
+- [x] Overlapping Lease Protection: Overlapping date ranges correctly rejected with ORA error `-20012`.
+- [x] Row-Level Triggers: `TRG_PAYMENT_AUDIT` and `TRG_PROPERTY_STATUS_AUDIT` actively recorded events into `SECURITY_AUDIT`.
+- [x] Package Routines: `REALESTATE_PKG` explicit cursor report and dues reconciliation executed with live `DBMS_OUTPUT`.
+- [x] Web Client: React UI successfully communicated with Express API via Vite proxy on `http://localhost:5173`.
 
-Monitor and audit security events using the schema defined in `Security/security_audit.sql`.
+---
 
-## License
+## 10. License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
