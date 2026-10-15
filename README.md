@@ -124,13 +124,6 @@ All database scripts are located in `database/oracle/` and designed to be execut
 5. **Maintenance Ticketing**: Track open, in-progress, and resolved repair requests with priority badges (`Urgent`, `High`, `Normal`, `Low`).
 6. **Sales & Deeds**: View historical sales transactions, purchase prices, client names, and broker commissions.
 7. **ADBMS Reports**: 4 complex relational reporting queries (Active Leases by City, Outstanding Dues Reconciliation, Maintenance Aging, and Portfolio Valuation).
-8. **Faculty Viva Console**:
-   - Live query of `USER_OBJECTS` and `USER_TRIGGERS` displaying object compilation status (`VALID`).
-   - Interactive function test forms (`CALCULATE_AGENT_COMMISSION`, `GET_PROPERTY_STATUS`, `CALCULATE_RENTAL_DUES`).
-   - Real-time `DBMS_OUTPUT` console capturing output from `REALESTATE_PKG.generate_portfolio_report` and `reconcile_all_dues`.
-   - Live security audit viewer displaying trigger-generated records.
-   - Built-in ADBMS viva cheat sheet with architecture defense talking points.
-
 ---
 
 ## 7. Local Setup & Startup Instructions
@@ -182,20 +175,7 @@ The client will start at `http://localhost:5173/`. Open this URL in any modern w
 
 ---
 
-## 8. Faculty Viva Examination Guide
-
-| Viva Question | Technical Explanation |
-| :--- | :--- |
-| **Why Oracle PL/SQL over standard client queries?** | Procedural logic, cursors, and constraints execute directly within the Oracle kernel, reducing network round-trips and enforcing ACID compliance at the database tier. |
-| **How are overlapping leases prevented?** | Inside `CREATE_LEASE`, an explicit condition checks `(lease_start <= p_lease_end AND lease_end >= p_lease_start)` for existing active leases. If true, it raises application error `-20012`. |
-| **How is double-selling prevented?** | `COMPLETE_PROPERTY_SALE` issues `SELECT status FROM property WHERE property_id = :id FOR UPDATE`. If status is not `Available`, it raises `-20031` and rolls back to a savepoint. |
-| **Where are explicit cursors used?** | `REALESTATE_PKG.generate_portfolio_report` declares `CURSOR c_prop`, opens it with `OPEN`, iterates using `FETCH ... INTO`, checks `%NOTFOUND`, and closes it with `CLOSE`. |
-| **Where are cursor FOR loops used?** | `REALESTATE_PKG.reconcile_all_dues` uses `FOR r IN c_active_leases LOOP`, which manages cursor lifecycle automatically. |
-| **How were mutating table errors avoided?** | Row-level triggers (`TRG_PAYMENT_AUDIT`, `TRG_PROPERTY_STATUS_AUDIT`) only inspect `:NEW` and `:OLD` values and insert into the independent `SECURITY_AUDIT` table, without querying the mutating table. |
-
----
-
-## 9. Verification & Test Results
+## 8. Verification & Test Results
 
 The following test suites were executed and verified against a live Oracle 21c Database:
 - [x] Schema DDL: 14 tables, constraints, foreign keys, and indexes compiled cleanly.
@@ -209,6 +189,8 @@ The following test suites were executed and verified against a live Oracle 21c D
 
 ---
 
-## 10. License
+## 9. License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+### By Himanshu Nepaliya, Uday Bhosle and Chinmay Chauhan
