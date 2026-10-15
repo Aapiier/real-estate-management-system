@@ -206,9 +206,4 @@ The following test suites were executed and verified against a live Oracle 21c D
 - [x] Web Client: React UI successfully communicated with Express API via Vite proxy on `http://localhost:5173`.
 
 ---
-
-## 9. License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
 ### By Himanshu Nepaliya, Uday Bhosle and Chinmay Chauhan
